@@ -263,7 +263,7 @@ class _CardSwiperState extends State<CardSwiper>
   double _getOpacityFromPageValue(double v) {
     int wholeNumber = v.round();
     double decimal = v - wholeNumber;
-    
+
     // make sure it's a neg.
     if (decimal > 0) {
       // *= -2 because the highest decimal will ever be is 0.5
@@ -321,7 +321,7 @@ class _CardSwiperState extends State<CardSwiper>
         ),
         Opacity(
           opacity: _getOpacityFromPageValue(_currentPage),
-                  child: Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text("Balance", style: h2TextStyle),
