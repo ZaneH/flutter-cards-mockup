@@ -178,11 +178,13 @@ class _CardSwiperState extends State<CardSwiper>
     with SingleTickerProviderStateMixin {
   Animation<double> dotFadeInAnimation;
   Animation<double> dotFadeOutAnimation;
+  Animation<double> balanceAnimation;
 
   AnimationController _controller;
 
   int _currentPageIndex;
   int _lastPageIndex;
+  double _currentPage;
 
   PageController _pageController;
 
@@ -192,6 +194,7 @@ class _CardSwiperState extends State<CardSwiper>
   void initState() {
     super.initState();
 
+    _currentPage = 0;
     _currentPageIndex = 0;
     _lastPageIndex = 0;
 
@@ -257,14 +260,32 @@ class _CardSwiperState extends State<CardSwiper>
     super.dispose();
   }
 
+  double _getOpacityFromPageValue(double v) {
+    int wholeNumber = v.round();
+    double decimal = v - wholeNumber;
+    
+    // make sure it's a neg.
+    if (decimal > 0) {
+      // *= -2 because the highest decimal will ever be is 0.5
+      decimal *= -2;
+    } else {
+      decimal *= 2;
+    }
+
+    // return whatever 1 - the offset is
+    return (1 + decimal).clamp(0, 1).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     _pageController = PageController(viewportFraction: 0.7);
     onChanged = () {
       setState(() {
-        if (_currentPageIndex != _pageController.page.toInt()) {
+        _currentPage = _pageController.page;
+
+        if (_currentPageIndex != _currentPage.round()) {
           _lastPageIndex = _currentPageIndex;
-          _currentPageIndex = _pageController.page.toInt();
+          _currentPageIndex = _currentPage.round();
 
           _controller.reset();
           _controller.forward();
@@ -298,21 +319,24 @@ class _CardSwiperState extends State<CardSwiper>
           transform: Matrix4.translationValues(0, -20, 0),
           child: _buildPageDots(),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text("Balance", style: h2TextStyle),
-            SizedBox(
-              width: 4,
-            ),
-            Text(
-              widget.cards[_currentPageIndex].balance,
-              style: TextStyle(
-                color: widget.cards[_currentPageIndex].backgroundColor,
-                fontSize: 24,
+        Opacity(
+          opacity: _getOpacityFromPageValue(_currentPage),
+                  child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text("Balance", style: h2TextStyle),
+              SizedBox(
+                width: 4,
               ),
-            ),
-          ],
+              Text(
+                widget.cards[_currentPageIndex].balance,
+                style: TextStyle(
+                  color: widget.cards[_currentPageIndex].backgroundColor,
+                  fontSize: 24,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
