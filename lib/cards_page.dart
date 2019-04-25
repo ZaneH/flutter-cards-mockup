@@ -309,7 +309,10 @@ class _CardSwiperState extends State<CardSwiper>
                   right: 8.0,
                   top: 24,
                 ),
-                child: PrettyCard(widget.cards[idx]),
+                child: PrettyCard(
+                  widget.cards[idx],
+                  idx == _currentPageIndex,
+                ),
               );
             },
             itemCount: widget.cards.length,
@@ -345,20 +348,23 @@ class _CardSwiperState extends State<CardSwiper>
 
 class PrettyCard extends StatelessWidget {
   final CCard displayCard;
+  final bool active;
 
-  const PrettyCard(this.displayCard);
+  const PrettyCard(this.displayCard, this.active);
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Container(
+        AnimatedContainer(
+          duration: Duration(milliseconds: 300),
           height: 160,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: displayCard.backgroundColor.withAlpha(150),
+                color:
+                    displayCard.backgroundColor.withAlpha((active) ? 150 : 0),
                 blurRadius: 24,
                 offset: Offset(0, 8),
               ),
